@@ -42,10 +42,10 @@ public:
   void dispSpec() {
     cout<<"The image specifications are as follows:\n";
 
-    cout<<setw(10)<<"FORMAT: "<<setw(4)<<format;
-    cout<<setw(10)<<"WIDTH: "<<setw(4)<<width;
-    cout<<setw(10)<<"HEIGHT: "<<setw(4)<<height;
-    cout<<setw(10)<<"MAX GRAY: "<<setw(4)<<maxGray;
+    cout<< setiosflags(ios::left)<<setw(8)<<"FORMAT"<<" : "<<setw(4)<<format<<endl;
+    cout<< setiosflags(ios::left)<<setw(8)<<"WIDTH"<<" : "<<setw(4)<<width<<endl;
+    cout<< setiosflags(ios::left)<<setw(8)<<"HEIGHT"<<" : "<<setw(4)<<height<<endl;
+    cout<< setiosflags(ios::left)<<setw(8)<<"MAX GRAY"<<" : "<<setw(4)<<maxGray<<endl;
   }
   
 };
