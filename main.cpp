@@ -23,20 +23,23 @@ public:
   PGM():format(""),width(0),height(0),maxGray(0),pixelVal(NULL) {
   }
 
-  int readHeader(string imgName) {
+  void readHeader(string imgName) {
     ifstream file(imgName.c_str());
 
     file>>format;
+    file.ignore(INT_MAX,'\n');
     if(file.peek()==35)
       file.ignore(INT_MAX,'\n');
 
     file>>width;
     file>>height;
     file>>maxGray;
+
+    file.close();
     
   }
-  bool readImage(string imgName) {
-    ifstream file;
+  void readImage(string imgName) {
+    
   }
 
   void dispSpec() {
