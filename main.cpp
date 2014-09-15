@@ -17,6 +17,9 @@
 #include<climits>
 #include<cstdlib>
 #include<vector>
+#include<cmath>
+#include<algorithm>
+
 
 using namespace std;
 
@@ -212,6 +215,78 @@ struct huffPacket {
   int freq;
 };
 
+class codeScheme {
+  int nItems;
+  int nbits;
+  int **codeTable;
+
+public:
+  codeScheme():nItems(0),nbits(0),codeTable(NULL) {}
+
+  codeScheme(int _nItems,int _nbits):nItems(_nItems),nbits(_nbits) {
+    codeTable=new int*[nItems];
+    for(int i=0;i<nItems;i++) {
+      codeTable[i]=new int[2];
+    }
+  }
+
+  void initialize(int _nItems,int _nbits) {
+    nItems=_nItems;
+    nbits=_nbits;
+    codeTable=new int*[nItems];
+    for(int i=0;i<nItems;i++) {
+      codeTable[i]=new int[2];
+    }
+  }
+
+  ~codeScheme() {
+    for(int i=0;i<nItems;i++) {
+      delete [] codeTable[i];
+    }
+    delete [] codeTable;
+  }
+
+  void setNBits(int _nbits) {
+    nbits=_nbits;
+  }
+  int getNBits() {
+    return nbits;
+  }
+
+  void setCode(int index, int value, int code) {
+    codeTable[index][0]=value;
+    codeTable[index][1]=code;
+  }
+
+  int getCode(int value) {
+    for(int i=0;i<nItems;i++) {
+      if(codeTable[i][0]==value)
+	return codeTable[i][1];
+    }
+    return -1;
+  }
+
+  void dispCodeScheme() {
+    int bit;
+    cout<<"CODE SCHEME"<<endl;
+
+    for(int i=0;i<nItems;i++) {
+
+      cout<<setw(5)<<codeTable[i][0]<<" | ";
+      for(int j=nbits-1;j>=0;j--) {
+	bit=((codeTable[i][1]&(1<<j))!=0)?1:0;
+	cout<<bit;
+      }
+      cout<<endl;
+    }
+  }
+};
+
+bool compareHuffPacket(const huffPacket h1,const huffPacket h2) {
+  if(h1.freq>h2.freq)
+    return true;
+  return false;
+}
 class FixedLengthCoder {
   
 public:
@@ -220,7 +295,6 @@ public:
     struct huffPacket* newPacket;
     
     for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
-      cout<<"Checking "<<(*it).frequency<<endl;
       findHuffPacket(hfPackets,(*it).frequency,itr);
       if(itr==hfPackets.end()) { //Not found
 	newPacket=new huffPacket();
@@ -242,6 +316,46 @@ public:
     }
   }
 
+
+
+  void generateFixedCode(vector<rlePacket>& packets, codeScheme& codeSch) {
+
+    vector<huffPacket> hfPackets;
+
+    groupFrequency(packets,hfPackets);
+    cout<<"The size of the grouped vector is "<<hfPackets.size()<<endl;
+
+    sort(hfPackets.begin(),hfPackets.end(),compareHuffPacket);
+    
+    cout<<"The following are the details of the sorted grouped packets:"<<endl;
+    for(vector<huffPacket>::iterator it=hfPackets.begin();it!=hfPackets.end();it++) {
+      cout<<setw(5)<<(*it).num<<" | "<<(*it).freq<<endl;
+    }
+    float temp=log2(hfPackets.size());
+    int nbits=0;
+    if(floor(temp)==temp)
+      nbits=static_cast<int>(temp);
+    else
+      nbits=static_cast<int>(temp)+1;
+
+    codeSch.initialize(hfPackets.size(),nbits);
+    for(int i=0;i<hfPackets.size();i++) {
+      codeSch.setCode(i,hfPackets[i].num,i);
+    }
+
+    codeSch.dispCodeScheme();
+    
+  }
+
+  void generateFile(vector<rlePacket>& packets, codeScheme& codeSch, string filename) {
+    ofstream ofile(filename.c_str(),ios::binary);
+
+    char ch;
+    for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
+      
+    }
+  }
+  
 };
 
 int main() {
@@ -269,16 +383,8 @@ int main() {
 
 
   FixedLengthCoder fcoder;
-  vector<huffPacket> hfPackets;
-  fcoder.groupFrequency(packets,hfPackets);
-  cout<<"The size of the grouped vector is "<<hfPackets.size()<<endl;
-  cout<<"The following are the details of the grouped packets:"<<endl;
-  for(vector<huffPacket>::iterator it=hfPackets.begin();it!=hfPackets.end();it++) {
-    cout<<setw(5)<<(*it).num<<" | "<<(*it).freq<<endl;
-  }
+  codeScheme codeSch;
+  fcoder.generateFixedCode(packets,codeSch);
+
   return 0;
 }
-
-
-
-
