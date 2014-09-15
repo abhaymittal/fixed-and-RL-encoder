@@ -1,9 +1,22 @@
+/**
+ *  PROGRAM TO PERFORM RUN LENGTH ENCODING ON A PGM IMAGE
+ *  @author Abhay Mittal
+ *
+ *  ------------------------------------------------------
+ *
+ *  ERROR CODES:
+ *  10 - File Format invalid. Valid file formats => P2 and P5
+ *  11 - Max Number of Grayscale levels > 255
+ *
+ **/
+
 #include<fstream>
 #include<iostream>
 #include<string>
 #include<iomanip>
 #include<climits>
 #include<cstdlib>
+#include<vector>
 
 using namespace std;
 
@@ -49,6 +62,10 @@ public:
   
   void readImage(string imgName) {
     readHeader(imgName);
+    if(maxGray>255) {
+      cout<<"Invalid gray levels. Max Supported Gray level = 255"<<endl;
+      exit(11);
+    }
     if(format=="P5") //binary PGM
       readImageP5(imgName);
     else if(format=="P2") //ascii PGM
@@ -154,18 +171,61 @@ public:
   
 };
 
+struct rlePacket {
+  int frequency;
+  int bit;
+};
+
+class RunLengthEncoder {
+public:
+  void encode(unsigned char* aray,int nElem,vector<struct rlePacket>& packets) {
+    
+    int wordSize=sizeof(unsigned char);
+    int prevBit=-1;
+    int currentBit=0;
+    int counter=0;
+    struct rlePacket* newPacket;
+
+    
+    for(int i=0;i<nElem;i++) {
+      for(int j=wordSize-1;j>=0;j--) {
+	currentBit=aray[i]&(1<<j);
+	if(prevBit==currentBit)
+	  counter++;
+	else {
+	  newPacket = new rlePacket();
+	  newPacket->frequency=counter;
+	  newPacket->bit=prevBit;
+	  packets.push_back(*newPacket);
+	  counter=1;
+	  prevBit=currentBit;
+	}
+      }
+    }
+
+    packets.erase(packets.begin());
+  }
+};
 
 int main() {
   string fileName("sample.pgm");
   PGM img;
   img.readImage(fileName);
   img.dispSpec();
-  img.dispPixelMap();
 
   //getting the pixel array
   unsigned char *pixelMap;
   pixelMap=img.serializePixelVal();
   int nPxlMap=img.getHeight()*img.getWidth();
+
+  RunLengthEncoder rle;
+  vector<rlePacket> packets;
+  rle.encode(pixelMap,nPxlMap,packets);
+  cout<<"The size of the encoded vector is "<<packets.size()<<endl;
+  cout<<"The following are the details of the encoded packets:"<<endl;
+  for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
+    cout<<setw(5)<<(*it).frequency<<" | "<<(*it).bit<<endl;
+  }
   return 0;
 }
 
