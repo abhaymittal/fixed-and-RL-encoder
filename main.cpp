@@ -189,7 +189,7 @@ public:
     
     for(int i=0;i<nElem;i++) {
       for(int j=wordSize-1;j>=0;j--) {
-	currentBit=aray[i]&(1<<j);
+	currentBit=((aray[i]&(1<<j))!=0)?1:0;
 	if(prevBit==currentBit)
 	  counter++;
 	else {
@@ -205,6 +205,43 @@ public:
 
     packets.erase(packets.begin());
   }
+};
+
+struct huffPacket {
+  int num;
+  int freq;
+};
+
+class FixedLengthCoder {
+  
+public:
+  void groupFrequency(vector<rlePacket>& packets,vector<huffPacket>& hfPackets) {
+    vector<huffPacket>::iterator itr;
+    struct huffPacket* newPacket;
+    
+    for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
+      cout<<"Checking "<<(*it).frequency<<endl;
+      findHuffPacket(hfPackets,(*it).frequency,itr);
+      if(itr==hfPackets.end()) { //Not found
+	newPacket=new huffPacket();
+	newPacket->num=(*it).frequency;
+	newPacket->freq=1;
+	hfPackets.push_back(*newPacket);
+      }
+      else { //Found
+	(*itr).freq=(*itr).freq+1;
+      }
+    }
+  }
+
+  void findHuffPacket(vector<huffPacket>& hfPackets,int item,    vector<huffPacket>::iterator& it) {
+
+    for(it=hfPackets.begin();it!=hfPackets.end();it++) {
+      if((*it).num==item)
+	break;
+    }
+  }
+
 };
 
 int main() {
@@ -225,6 +262,19 @@ int main() {
   cout<<"The following are the details of the encoded packets:"<<endl;
   for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
     cout<<setw(5)<<(*it).frequency<<" | "<<(*it).bit<<endl;
+  }
+
+
+  cout<<"----------------------------------------"<<endl;
+
+
+  FixedLengthCoder fcoder;
+  vector<huffPacket> hfPackets;
+  fcoder.groupFrequency(packets,hfPackets);
+  cout<<"The size of the grouped vector is "<<hfPackets.size()<<endl;
+  cout<<"The following are the details of the grouped packets:"<<endl;
+  for(vector<huffPacket>::iterator it=hfPackets.begin();it!=hfPackets.end();it++) {
+    cout<<setw(5)<<(*it).num<<" | "<<(*it).freq<<endl;
   }
   return 0;
 }
