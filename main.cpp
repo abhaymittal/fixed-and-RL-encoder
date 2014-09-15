@@ -15,13 +15,19 @@ private:
   int width;       //Width of pixel array
   int height;      //Height of pixel array
   int maxGray;     //Maximum grayscale level
-  int **pixelVal;  //Pixel array
+  unsigned char **pixelVal;  //Pixel array
 
 public:
   //Member functions
 
   //No-arg constructor
   PGM():format(""),width(0),height(0),maxGray(0),pixelVal(NULL) {
+  }
+
+  ~PGM() {
+    for(int i=0;i<height;i++)
+      delete [] pixelVal[i];
+    delete [] pixelVal;
   }
 
   void readHeader(string imgName) {
@@ -67,15 +73,15 @@ public:
     //Read the file
 
     unsigned char ch;
-    pixelVal=new int*[height];
+    pixelVal=new unsigned char*[height];
     for(int i=0;i<height;i++) {
-      pixelVal[i]=new int[width];
+      pixelVal[i]=new unsigned char[width];
     }
     
     for(int i=0;i<height;i++) {
       for(int j=0;j<width;j++) {
 	file>>ch;
-	pixelVal[i][j]=static_cast<int>(ch);
+	pixelVal[i][j]=ch;
       }
     }
     file.close();
@@ -92,14 +98,16 @@ public:
 	file.ignore(INT_MAX,'\n');
 
 	//Read the file
-	pixelVal=new int*[height];
+	pixelVal=new unsigned char*[height];
 	for(int i=0;i<height;i++) {
-	  pixelVal[i]=new int[width];
+	  pixelVal[i]=new unsigned char[width];
 	}
 
+	int temp;
 	for(int i=0;i<height;i++) {
 	  for(int j=0;j<width;j++) {
-	    file>>pixelVal[i][j];
+	    file>>temp;
+	    pixelVal[i][j]=temp;
 	  }
 	}
 	file.close();
@@ -115,13 +123,33 @@ public:
     cout<< setiosflags(ios::left)<<setw(8)<<"MAX GRAY"<<" : "<<setw(4)<<maxGray<<endl;
   }
 
-  void dispPixelVal() {
+  void dispPixelMap() {
     for(int i=0;i<height;i++) {
       for(int j=0;j<width;j++) {
-	cout<<pixelVal[i][j]<<" ";
+	cout<<static_cast<int>(pixelVal[i][j])<<" ";
       }
       cout<<endl;
     }
+  }
+
+  unsigned char* serializePixelVal() {
+    unsigned char* serialPixelVal = new unsigned char[height*width];
+
+    for(int i=0;i<height;i++) {
+      for(int j=0;j<width;j++){
+	serialPixelVal[(i*width)+j]=pixelVal[i][j];
+      }
+    }
+
+    return serialPixelVal;
+  }
+
+  int getWidth() {
+    return width;
+  }
+
+  int getHeight() {
+    return height;
   }
   
 };
@@ -132,9 +160,15 @@ int main() {
   PGM img;
   img.readImage(fileName);
   img.dispSpec();
-  img.dispPixelVal();
+  img.dispPixelMap();
+
+  //getting the pixel array
+  unsigned char *pixelMap;
+  pixelMap=img.serializePixelVal();
+  int nPxlMap=img.getHeight()*img.getWidth();
   return 0;
 }
+
 
 
 
