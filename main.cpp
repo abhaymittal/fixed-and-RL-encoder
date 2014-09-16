@@ -365,15 +365,17 @@ public:
 
     //Determine the frequencies of frequencies determined by RLE
     groupFrequency(packets,fxPackets);
-    cout<<"The size of the grouped vector is "<<fxPackets.size()<<endl;
+    //cout<<"The size of the grouped vector is "<<fxPackets.size()<<endl;
 
     //Sort packets based on their frequencies using compareHuffPacket function
     sort(fxPackets.begin(),fxPackets.end(),compareHuffPacket);
     
+    /*
     cout<<"The following are the details of the sorted grouped packets:"<<endl;
     for(vector<fixPacket>::iterator it=fxPackets.begin();it!=fxPackets.end();it++) {
       cout<<setw(5)<<(*it).num<<" | "<<(*it).freq<<endl;
-    }
+    }*/
+    
     //determine the number of bits required to generate fixed length code
     float temp=log2(fxPackets.size());
     int nbits=0;
