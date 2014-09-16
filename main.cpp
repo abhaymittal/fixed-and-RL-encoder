@@ -233,7 +233,7 @@ public:
 };
 
 //Structure representing the output format of Fixed Length coder
-struct huffPacket {
+struct fixPacket {
   int num; //Number
   int freq; //Frequency of number
 };
@@ -316,8 +316,8 @@ public:
 };
 
 
-//Function to compare two huffPacket structures. Returns true if the frequency of h1 > frequency of h2
-bool compareHuffPacket(const huffPacket h1,const huffPacket h2) {
+//Function to compare two fixPacket structures. Returns true if the frequency of h1 > frequency of h2
+bool compareHuffPacket(const fixPacket h1,const fixPacket h2) {
   if(h1.freq>h2.freq)
     return true;
   return false;
@@ -328,19 +328,19 @@ class FixedLengthCoder {
   
 public:
   //Function to determine the frequencies of frequencies determined by the Run length encoder
-  void groupFrequency(vector<rlePacket>& packets,vector<huffPacket>& hfPackets) {
-    vector<huffPacket>::iterator itr;
-    struct huffPacket* newPacket;
+  void groupFrequency(vector<rlePacket>& packets,vector<fixPacket>& fxPackets) {
+    vector<fixPacket>::iterator itr;
+    struct fixPacket* newPacket;
 
     //Iterate over all the Run length packets
     for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
       //Check if element already exists in the output vector
-      findHuffPacket(hfPackets,(*it).frequency,itr);
-      if(itr==hfPackets.end()) { //Not found
-	newPacket=new huffPacket();
+      findHuffPacket(fxPackets,(*it).frequency,itr);
+      if(itr==fxPackets.end()) { //Not found
+	newPacket=new fixPacket();
 	newPacket->num=(*it).frequency;
 	newPacket->freq=1;
-	hfPackets.push_back(*newPacket);
+	fxPackets.push_back(*newPacket);
       }
       else { //Found
 	(*itr).freq=(*itr).freq+1;
@@ -349,9 +349,9 @@ public:
   }
 
   //Function to find a packet Fixed length packet with a particular value. Returns the end() element of vector if element is not found
-  void findHuffPacket(vector<huffPacket>& hfPackets,int item,    vector<huffPacket>::iterator& it) {
+  void findHuffPacket(vector<fixPacket>& fxPackets,int item,    vector<fixPacket>::iterator& it) {
 
-    for(it=hfPackets.begin();it!=hfPackets.end();it++) {
+    for(it=fxPackets.begin();it!=fxPackets.end();it++) {
       if((*it).num==item)
 	break;
     }
@@ -361,21 +361,21 @@ public:
   //Function to generate the fixed code
   void generateFixedCode(vector<rlePacket>& packets, codeScheme& codeSch) {
 
-    vector<huffPacket> hfPackets;
+    vector<fixPacket> fxPackets;
 
     //Determine the frequencies of frequencies determined by RLE
-    groupFrequency(packets,hfPackets);
-    cout<<"The size of the grouped vector is "<<hfPackets.size()<<endl;
+    groupFrequency(packets,fxPackets);
+    cout<<"The size of the grouped vector is "<<fxPackets.size()<<endl;
 
     //Sort packets based on their frequencies using compareHuffPacket function
-    sort(hfPackets.begin(),hfPackets.end(),compareHuffPacket);
+    sort(fxPackets.begin(),fxPackets.end(),compareHuffPacket);
     
     cout<<"The following are the details of the sorted grouped packets:"<<endl;
-    for(vector<huffPacket>::iterator it=hfPackets.begin();it!=hfPackets.end();it++) {
+    for(vector<fixPacket>::iterator it=fxPackets.begin();it!=fxPackets.end();it++) {
       cout<<setw(5)<<(*it).num<<" | "<<(*it).freq<<endl;
     }
     //determine the number of bits required to generate fixed length code
-    float temp=log2(hfPackets.size());
+    float temp=log2(fxPackets.size());
     int nbits=0;
     if(floor(temp)==temp)
       nbits=static_cast<int>(temp);
@@ -383,9 +383,9 @@ public:
       nbits=static_cast<int>(temp)+1;
 
     //Save the coding scheme
-    codeSch.initialize(hfPackets.size(),nbits);
-    for(int i=0;i<hfPackets.size();i++) {
-      codeSch.setCode(i,hfPackets[i].num,i);
+    codeSch.initialize(fxPackets.size(),nbits);
+    for(int i=0;i<fxPackets.size();i++) {
+      codeSch.setCode(i,fxPackets[i].num,i);
     }
 
     codeSch.dispCodeScheme();
