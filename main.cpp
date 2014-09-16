@@ -5,8 +5,22 @@
  *  ------------------------------------------------------
  *
  *  ERROR CODES:
- *  10 - File Format invalid. Valid file formats => P2 and P5
- *  11 - Max Number of Grayscale levels > 255
+ *  10 - File Format invalid. Valid file formats => P2 and P5.
+ *  11 - Max Number of Grayscale levels > 255.
+ *
+ *  ------------------------------------------------------
+ *
+ *  Output:
+ *
+ *  The program generates a file named output.out written in binary format character by character.
+ *  The coding scheme is displayed on the standard output. It can be redirected to any file.
+ *  The PGM class has function to display the image data. The data can be seen by invoking the functions.
+ *
+ * -------------------------------------------------------
+ *
+ *  Input:
+ *
+ *  The program is capable of reading both Binary PGM files (P5) and ASCII PGM files (P2).
  *
  **/
 
@@ -366,7 +380,7 @@ public:
     //Determine the frequencies of frequencies determined by RLE
     groupFrequency(packets,fxPackets);
     //cout<<"The size of the grouped vector is "<<fxPackets.size()<<endl;
-
+    
     //Sort packets based on their frequencies using compareHuffPacket function
     sort(fxPackets.begin(),fxPackets.end(),compareHuffPacket);
     
