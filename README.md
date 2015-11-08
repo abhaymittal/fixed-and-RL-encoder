@@ -10,9 +10,10 @@ This program takes a P2 (ASCII) PGM or a P5 (Binary) PGM as input and generates 
 + The output of the run length encoder is a file with a .rle extension.
 
 ### Error codes
-The program provides the following two error codes
-+ __10__ - File format invalid. File must be a P2 or a P5 PGM.
-+ __11__ - The maximum gray scale level is more than 255.
+The program may exit with the following error codes:
+
++ **10** => File format invalid. File must be a P2 or a P5 PGM.
++ **11** => The maximum gray scale level is more than 255.
 
 
 Note: Generating the rle output file slows down the program. If speed is a concern, please comment the following line "rle.encode(pixelMap,nPxlMap,packets);" in the main function to preclude the generation of the rle output file.
