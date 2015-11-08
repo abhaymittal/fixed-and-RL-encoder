@@ -2,6 +2,7 @@
  *  PROGRAM TO PERFORM RUN LENGTH ENCODING AND FIXED LENGTH ENCODING ON A PGM IMAGE
  *  @author Abhay Mittal
  *
+ *  This program takes a P2 or P5 pgm image as input and performs run length encoding followed by fixed length encoding  on it.
  *  ------------------------------------------------------
  *
  *  ERROR CODES:
@@ -16,7 +17,6 @@
  *  The coding scheme is displayed on the standard output. It can be redirected to any file.
  *  The PGM class has function to display the image data. The data can be seen by invoking the functions.
  *
- *  Note: The RLE output file is not generated yet. Please uncomment line 484(in main()) to generate RLE output file. Extension will be .rle
  *
  * -------------------------------------------------------
  *
@@ -482,7 +482,7 @@ int main() {
   RunLengthEncoder rle;
   vector<rlePacket> packets;
   rle.encode(pixelMap,nPxlMap,packets);
-  // rle.generateFile(packets,ofileName);
+  rle.generateFile(packets,ofileName);
   /* cout<<"The size of the encoded vector is "<<packets.size()<<endl;
   cout<<"The following are the details of the encoded packets:"<<endl;
   for(vector<rlePacket>::iterator it=packets.begin();it!=packets.end();it++) {
